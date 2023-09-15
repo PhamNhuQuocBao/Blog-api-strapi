@@ -1,0 +1,10 @@
+.blogs__group {
+  margin: 50px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 40px;
+}
+
+.btn {
+  padding: 5px 10px;
+}

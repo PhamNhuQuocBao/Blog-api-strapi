@@ -1,0 +1,28 @@
+.wrapper_form {
+  padding: 20px;
+  border-radius: 10px;
+  #form_blog {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    .form__group {
+      display: flex;
+      flex-direction: column;
+      .input {
+        padding: 8px 5px;
+      }
+      .label {
+        font-size: 16px;
+        font-weight: bold;
+      }
+      gap: 5px;
+      &.btn__group {
+        flex-direction: row;
+        .btn {
+          flex: 1;
+          cursor: pointer;
+        }
+      }
+    }
+  }
+}
