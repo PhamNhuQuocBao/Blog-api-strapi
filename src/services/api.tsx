@@ -5,11 +5,15 @@ const API = axios.create({
   baseURL: "http://localhost:1337/api",
 });
 
+const endpointBlog = "/blogs?populate=*";
+
 export const getAllBlog = async () => {
   try {
-    const res = await API.get("/blogs");
+    const res = await API.get(`${endpointBlog}`);
 
     if (res.status === 200) {
+      console.log(res.data.data[3].attributes.image.data);
+      
       return res.data;
     }
   } catch (err) {
@@ -19,7 +23,7 @@ export const getAllBlog = async () => {
 
 export const add = async (blog: DataBlog) => {
   try {
-    const res = await API.post("/blogs", {
+    const res = await API.post(`${endpointBlog}`, {
       data: blog,
     });
 
@@ -33,7 +37,7 @@ export const add = async (blog: DataBlog) => {
 
 export const update = async (id: number, blog: DataBlog) => {
   try {
-    const res = await API.put(`/blogs/${id}`, { data: blog });
+    const res = await API.put(`${endpointBlog}/${id}`, { data: blog });
 
     if (res.status === 200) {
       return res.data;
@@ -45,7 +49,7 @@ export const update = async (id: number, blog: DataBlog) => {
 
 export const remove = async (id: number) => {
   try {
-    const res = await API.delete(`/blogs/${id}`);
+    const res = await API.delete(`${endpointBlog}/${id}`);
 
     if (res.status === 200) {
       return res.data;

@@ -1,6 +1,9 @@
 import { memo, FC, useState, useCallback, ChangeEvent, useEffect } from "react";
 import "./Form.scss";
 import { useBlogContext } from "../../hooks/useBlogContext";
+import { CKEditor } from "@ckeditor/ckeditor5-react";
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import { OpenAI } from "openai";
 
 interface FormProps {
   id: number;
@@ -16,11 +19,13 @@ export interface DataBlog {
 
 const Form: FC<FormProps> = ({ id, onCancel }) => {
   const { blogs, handleCreate, handleUpdate } = useBlogContext();
-  const [dataTable, setDataTable] = useState<DataBlog>({
+  const [dataForm, setdataForm] = useState<DataBlog>({
     title: "",
     description: "",
     content: "",
   });
+
+  const [ckeditor, setCkeditor] = useState("");
 
   useEffect(() => {
     if (id) {
@@ -29,22 +34,37 @@ const Form: FC<FormProps> = ({ id, onCancel }) => {
       });
 
       const { attributes } = data;
-      setDataTable(attributes);
+      setdataForm(attributes);
     }
+  }, []);
+
+  const handleAutoGenerate = useCallback(() => {
+    const openai = new OpenAI({
+      apiKey: "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",
+      dangerouslyAllowBrowser: true,
+      timeout: 5000
+    });
+
+    const res = openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [{ role: "user", content: "what your name?" }],
+    });
+
+    console.log(res);
   }, []);
 
   const handleDataChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setDataTable((prev) => ({ ...prev, [name]: value }));
+    setdataForm((prev) => ({ ...prev, [name]: value }));
   }, []);
 
   const handleOk = useCallback(() => {
-    id ? handleUpdate(id, dataTable) : handleCreate(dataTable);
+    id ? handleUpdate(id, dataForm) : handleCreate(dataForm);
 
     if (onCancel) {
       onCancel();
     }
-  }, [dataTable, handleCreate, handleUpdate, id, onCancel]);
+  }, [dataForm, handleCreate, handleUpdate, id, onCancel]);
 
   return (
     <div className="wrapper_form">
@@ -57,7 +77,7 @@ const Form: FC<FormProps> = ({ id, onCancel }) => {
             type="text"
             name="title"
             id="title"
-            value={dataTable.title}
+            value={dataForm.title}
             className="input"
             onChange={handleDataChange}
           />
@@ -71,7 +91,7 @@ const Form: FC<FormProps> = ({ id, onCancel }) => {
             name="description"
             id="description"
             className="input"
-            value={dataTable.description}
+            value={dataForm.description}
             onChange={handleDataChange}
           />
         </div>
@@ -83,10 +103,21 @@ const Form: FC<FormProps> = ({ id, onCancel }) => {
             type="text"
             name="content"
             id="content"
-            value={dataTable.content}
+            value={dataForm.content}
             className="input"
             onChange={handleDataChange}
           />
+        </div>
+        <div className="form__group">
+          <label htmlFor="price" className="label">
+            Blog
+          </label>
+          <button type="button" onClick={handleAutoGenerate}>
+            GPT
+          </button>
+          <div className="ckeditor__item">
+            <CKEditor editor={ClassicEditor} data={ckeditor} />
+          </div>
         </div>
         <div className="form__group btn__group">
           <button type="button" className="btn" onClick={handleOk}>

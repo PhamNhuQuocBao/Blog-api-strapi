@@ -25,4 +25,9 @@
       }
     }
   }
+  .ckeditor__item {
+    .ck-content {
+      min-height: 200px;
+    }
+  }
 }
