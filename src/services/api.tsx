@@ -5,15 +5,13 @@ const API = axios.create({
   baseURL: "http://localhost:1337/api",
 });
 
-const endpointBlog = "/blogs?populate=*";
+const endpointBlog = "/blogs";
 
 export const getAllBlog = async () => {
   try {
-    const res = await API.get(`${endpointBlog}`);
+    const res = await API.get(`/blogs?populate=*`);
 
     if (res.status === 200) {
-      console.log(res.data.data[3].attributes.image.data);
-      
       return res.data;
     }
   } catch (err) {
@@ -37,6 +35,8 @@ export const add = async (blog: DataBlog) => {
 
 export const update = async (id: number, blog: DataBlog) => {
   try {
+    console.log(blog);
+    
     const res = await API.put(`${endpointBlog}/${id}`, { data: blog });
 
     if (res.status === 200) {

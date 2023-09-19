@@ -9,6 +9,13 @@ interface DataBlog {
   title: string;
   description: string;
   content: string;
+  image: {
+    data: null | {
+      attributes: {
+        url: string;
+      };
+    };
+  };
   createAt?: string;
   updateAt?: string;
   publishAt?: string;
@@ -57,6 +64,10 @@ const HomePage: FC = () => {
               key={id}
               title={attributes.title}
               description={attributes.description}
+              content={attributes.content}
+              image={
+                attributes.image.data && attributes.image.data.attributes.url
+              }
               onDelete={() => {
                 handleDeleteBlog(id);
               }}

@@ -15,17 +15,17 @@ export interface DataBlog {
   title: string;
   description: string;
   content: string;
+  gpt?: string;
 }
 
 const Form: FC<FormProps> = ({ id, onCancel }) => {
   const { blogs, handleCreate, handleUpdate } = useBlogContext();
-  const [dataForm, setdataForm] = useState<DataBlog>({
+  const [dataForm, setDataForm] = useState<DataBlog>({
     title: "",
     description: "",
     content: "",
-  });
-
-  const [ckeditor, setCkeditor] = useState("");
+    gpt: "",
+  });  
 
   useEffect(() => {
     if (id) {
@@ -34,28 +34,41 @@ const Form: FC<FormProps> = ({ id, onCancel }) => {
       });
 
       const { attributes } = data;
-      setdataForm(attributes);
+      setDataForm(attributes);
     }
   }, []);
 
-  const handleAutoGenerate = useCallback(() => {
-    const openai = new OpenAI({
-      apiKey: "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",
-      dangerouslyAllowBrowser: true,
-      timeout: 5000
-    });
+  const handleAutoGenerate = useCallback(async () => {
+    if (dataForm.gpt) {
+      const openai = new OpenAI({
+        apiKey: import.meta.env.VITE_API_KEY,
+        dangerouslyAllowBrowser: true,
+      });
 
-    const res = openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [{ role: "user", content: "what your name?" }],
-    });
+      const { choices } = await openai.chat.completions.create({
+        model: "gpt-3.5-turbo",
+        messages: [{ role: "user", content: dataForm.gpt }],
+      });
 
-    console.log(res);
+      setDataForm((prev) => ({
+        ...prev,
+        content: prev.content + choices[0].message.content as string,
+      }));
+    } else {
+      alert("You have to enter value chat");
+    }
   }, []);
 
   const handleDataChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setdataForm((prev) => ({ ...prev, [name]: value }));
+    setDataForm((prev) => ({ ...prev, [name]: value }));
+  }, []);
+
+  const handleEditorChange = useCallback((value: string) => {
+    setDataForm((prev) => ({
+      ...prev,
+      content: value
+    }));
   }, []);
 
   const handleOk = useCallback(() => {
@@ -101,22 +114,25 @@ const Form: FC<FormProps> = ({ id, onCancel }) => {
           </label>
           <input
             type="text"
-            name="content"
-            id="content"
-            value={dataForm.content}
+            name="gpt"
+            id="gpt"
+            value={dataForm.gpt}
             className="input"
             onChange={handleDataChange}
+            placeholder="auto generate from chatGPT..."
           />
-        </div>
-        <div className="form__group">
-          <label htmlFor="price" className="label">
-            Blog
-          </label>
           <button type="button" onClick={handleAutoGenerate}>
             GPT
           </button>
           <div className="ckeditor__item">
-            <CKEditor editor={ClassicEditor} data={ckeditor} />
+            <CKEditor
+              editor={ClassicEditor}
+              data={dataForm.content}
+              onChange={(event, editor) => {
+                const data = editor.getData();
+                handleEditorChange(data);
+              }}
+            />
           </div>
         </div>
         <div className="form__group btn__group">
